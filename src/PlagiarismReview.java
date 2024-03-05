@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.SimpleTimeZone;
 
 public class PlagiarismReview {
@@ -17,26 +19,29 @@ public class PlagiarismReview {
         text2Arr = file2.split(" ");
     }
 
-    public int similitudePercentage() {
-        int m = text1Arr.length;
-        int n = text2Arr.length;
+    public double similitudePercentage() {
+        String[] text2CorrectDuplicate = removeDuplicates(text2Arr);
+        String[] text1Duplicate = removeDuplicates(text1Arr);
+        int m = text1Duplicate.length;
+        int n = text2CorrectDuplicate.length;
         int longestText = longestText();
         int minNumWords = Math.min(m, n);
-
-        int percentage = (longestText * 100) / minNumWords;
+        double percentage = (double) (longestText * 100) / minNumWords;
         return percentage;
     }
 
     private int longestText() {
 
         String[] text2Correct = correctMisspelling().split(" ");
-        int m = text1Arr.length;
-        int n = text2Correct.length;
+        String[] text2CorrectDuplicate = removeDuplicates(text2Correct);
+        String[] text1Duplicate = removeDuplicates(text1Arr);
+        int m = text1Duplicate.length;
+        int n = text2CorrectDuplicate.length;
 
         int[][] lcs = new int[m + 1][n + 1];
         for (int i = 1; i <= m; i++) {
             for (int j = 1; j <= n; j++) {
-                if (text1Arr[i - 1].equals(text2Correct[j - 1])) {
+                if (text1Duplicate[i - 1].equals(text2CorrectDuplicate[j - 1])) {
                     lcs[i][j] = lcs[i - 1][j - 1] + 1;
                 } else {
                     lcs[i][j] = Math.max(lcs[i - 1][j], lcs[i][j - 1]);
@@ -44,6 +49,12 @@ public class PlagiarismReview {
             }
         }
         return lcs[m][n];
+    }
+
+    public String[] removeDuplicates(String[] arr) {
+        HashSet<String> set = new HashSet<>();
+        Collections.addAll(set, arr);
+        return set.toArray(new String[0]);
     }
 
     private String correctMisspelling() {
